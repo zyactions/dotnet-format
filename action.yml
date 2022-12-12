@@ -1,0 +1,106 @@
+name: 'ZyAction: .NET Format'
+
+author: Florian Bernd
+description: A GitHub Action that wraps the .NET CLI `dotnet format` command.
+
+branding:
+  icon: terminal
+  color: blue
+
+inputs:
+  workspace:
+    description: The Visual Studio workspace (directory, project- or solution-file).
+    type: string
+    required: false
+    default: ''
+  diagnostics:
+    description: >
+      A newline-separated list of diagnostic IDs to use as a filter when fixing code style or
+      third-party issues. Supports multiline strings.
+
+      Default value is whichever IDs are listed in the  `.editorconfig` file.
+    type: string
+    required: false
+    default: ''
+  severity:
+    description: >
+      The minimum severity of diagnostics to fix.
+
+      Possible values:
+      - info
+      - warn
+      - error
+
+      The default value is `warn`.
+    type: string
+    required: false
+    default: ''
+  verify-no-changes:
+    description: >
+      Verifies that no formatting changes would be performed.
+      Terminates with a non zero exit code if any files would have been formatted.
+    type: boolean
+    required: false
+    default: false
+  include:
+    description: >
+      A newline-separated list of relative file or folder paths to include in formatting.
+
+      The default is all files in the solution or project.
+
+      Use `-` to read the list of files from the `pipe` input.
+    type: string
+    required: false
+    default: ''
+  exclude:
+    description: >
+      A newline-separated list of relative file or folder paths to exclude from formatting.
+
+      The default is none.
+
+      Use `-` to read the list of files from the `pipe` input.
+    type: string
+    required: false
+    default: ''
+  report-path:
+    description: Produces a JSON report in the specified directory.
+    type: string
+    required: false
+    default: ''
+  implicit-restore:
+    description: Execute an implicit restore before formatting.
+    type: boolean
+    required: false
+    default: false
+  pipe:
+    description: >
+      An optional pipe input from which the `include` or `exclude` filenames are to be read.
+
+      This must be set to a valid shell command line (bash) that can be used for piping. The
+      command must output to `stdout` and separate the individual filenames by line breaks.
+
+      WARNING:
+      The command passed to this input will be evaluated and should not come from untrusted
+      sources.
+    type: string
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: .NET Format
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      env:
+        INPUT_WORKSPACE: ${{ inputs.workspace }}
+        INPUT_DIAGNOSTICS: ${{ inputs.diagnostics }}
+        INPUT_SEVERITY: ${{ inputs.severity }}
+        INPUT_VERIFY_NO_CHANGES: ${{ inputs.verify-no-changes != 'false' && 'true' || 'false' }}
+        INPUT_INCLUDE: ${{ inputs.include }}
+        INPUT_EXCLUDE: ${{ inputs.exclude }}
+        INPUT_REPORT_PATH: ${{ inputs.report-path }}
+        INPUT_IMPLICIT_RESTORE: ${{ inputs.implicit-restore != 'false' && 'true' || 'false' }}
+        INPUT_PIPE: ${{ inputs.pipe }}
+      run: |
+        "$GITHUB_ACTION_PATH/entrypoint.sh"

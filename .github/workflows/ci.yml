@@ -11,9 +11,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Workaround for https://github.com/dotnet/format/issues/1805
+  DOTNET_INSTALL_DIR: .temp/dotnet
+  DOTNET_ROOT: .temp/dotnet
+
 jobs:
   test:
-    name: Test
+    name: Test on '${{ matrix.platform }}'
     runs-on: ${{ matrix.platform }}
     strategy:
       fail-fast: false
@@ -23,24 +28,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # Mitigate an issue with the current `macOS` runner-image as of 22/12/2022 where
-      # the `dotnet-format` command fails with 'Unable to locate MSBuild'..
-      - name: 'Create "global.json"'
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          cat <<EOF >> global.json
-          {
-              "sdk": {
-                "version": "6.0.100",
-                "allowPrerelease": false,
-                "rollForward": "latestFeature"
-              }
-          }
-          EOF
-
       - name: .NET Setup
         uses: zyactions/dotnet-setup@v1
+        with:
+          global-json-file: test/global.json
+
+      - name: .NET Restore
+        uses: zyactions/dotnet-restore@v1
+        with:
+          workspace: test
 
       - name: .NET Format
         uses: ./

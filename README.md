@@ -1,4 +1,4 @@
-# .NET Setup
+# .NET Format
 
 ![License: MIT][shield-license-mit]
 [![CI][shield-ci]][workflow-ci]
@@ -38,7 +38,9 @@ steps:
 
 > **Note**
 >
-> Unlike the wrapped command, this action does not perform an implicit package restore by default. A manual package restore (e.g. using [zyactions/dotnet-restore][zyactions-dotnet-restore]) is required by design. Set `implicit-restore` to `true` to switch back to the original behavior.
+> Unlike the wrapped command, this action does not perform an implicit package restore by default. A manual package restore (e.g. using [zyactions/dotnet-restore][zyactions-dotnet-restore]) is required by design.
+>
+> Set `implicit-restore` to `true` to switch back to the original behavior.
 
 ### Format a specific Project- or Solution
 
@@ -72,12 +74,15 @@ steps:
       return-pipe: true
 
   - name: .NET Format
+    uses: zyactions/dotnet-format@v1
     with:
       workspace: test/Test.csproj
       include: '-'
       pipe: ${{ steps.glob.outputs.pipe }}
       implicit-restore: true
 ```
+
+> **Note**: Check out the [zyactions/glob][zyactions-glob] action for further details.
 
 ### Check Formatting without performing Changes
 
@@ -96,7 +101,7 @@ steps:
 
 > **Note**
 >
-> The [zyactions/dotnet-lint][zyactions-dotnet-lint] action action can be used to lint files and create pull request annotations for detected formatting violations.
+> Check out the [zyactions/dotnet-lint][zyactions-dotnet-lint] action action if you like to create pull request annotations for detected formatting violations.
 
 ## Inputs
 
@@ -175,20 +180,21 @@ Versions follow the [semantic versioning scheme][semver].
 
 ## License
 
-.NET Restore Action is licensed under the MIT license.
+.NET Format Action is licensed under the MIT license.
 
 [actions-setup-dotnet]: https://github.com/actions/setup-dotnet
 [dotnet-format]: https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-format
 [dotnet-sdk]: https://github.com/dotnet/sdk
 [job-runs-on]: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
-[semver]:https://semver.org
+[semver]: https://semver.org
 [shield-license-mit]: https://img.shields.io/badge/License-MIT-blue.svg
-[shield-ci]: https://github.com/zyactions/dotnet-restore/actions/workflows/ci.yml/badge.svg
+[shield-ci]: https://github.com/zyactions/dotnet-format/actions/workflows/ci.yml/badge.svg
 [shield-platform-ubuntu]: https://img.shields.io/badge/Ubuntu-E95420?logo=ubuntu\&logoColor=white
 [shield-platform-macos]: https://img.shields.io/badge/macOS-53C633?logo=apple\&logoColor=white
 [shield-platform-windows]: https://img.shields.io/badge/Windows-0078D6?logo=windows\&logoColor=white
 [style-rules]: https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules
-[workflow-ci]: https://github.com/zyactions/dotnet-restore/actions/workflows/ci.yml
+[workflow-ci]: https://github.com/zyactions/dotnet-format/actions/workflows/ci.yml
 [zyactions-dotnet-lint]: https://github.com/zyactions/dotnet-lint
 [zyactions-dotnet-restore]: https://github.com/zyactions/dotnet-restore
 [zyactions-dotnet-setup]: https://github.com/zyactions/dotnet-setup
+[zyactions-glob]: https://github.com/zyactions/glob

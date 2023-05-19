@@ -105,6 +105,16 @@ steps:
 
 ## Inputs
 
+### `working-directory`
+
+The working-directory for the action.
+
+Defaults to the repository root directory (`github.workspace`).
+
+> **Note**
+>
+> If a specific .NET SDK version is to be used, the working directory must point to the directory that contains the `global.json` or a subdirectory of it.
+
 ### `workspace`
 
 The Visual Studio workspace (directory, project- or solution-file).
@@ -151,6 +161,14 @@ Produces a JSON report in the specified directory.
 
 Execute an implicit restore before formatting.
 
+### `use-standalone-tool`
+
+Uses the standalone version of the `dotnet-format` tool instead of the version bundled with the .NET SDK.
+
+> **Note**
+>
+> Check out the instructions for [installing a development build][dotnet-format-dev-builds] of `dotnet-format`.
+
 ### `pipe`
 
 An optional pipe input from which the `include` or `exclude` filenames are to be read.
@@ -184,6 +202,7 @@ Versions follow the [semantic versioning scheme][semver].
 
 [actions-setup-dotnet]: https://github.com/actions/setup-dotnet
 [dotnet-format]: https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-format
+[dotnet-format-dev-builds]: https://github.com/dotnet/format#how-to-install-development-builds
 [dotnet-sdk]: https://github.com/dotnet/sdk
 [job-runs-on]: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
 [semver]: https://semver.org

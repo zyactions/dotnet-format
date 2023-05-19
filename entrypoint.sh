@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -o pipefail
 
 if [[ "$INPUT_INCLUDE" == '-' ]] || [[ "$INPUT_EXCLUDE" == '-' ]]; then
     if [[ -z "$INPUT_PIPE" ]]; then
@@ -19,7 +20,31 @@ if [[ -n "$INPUT_PIPE" ]] && [[ "$INPUT_INCLUDE" != '-' ]] && [[ "$INPUT_EXCLUDE
         "configured to read from the standard input"
 fi
 
-cmd="dotnet format '$INPUT_WORKSPACE'"
+if sdk_version=$(dotnet --version 2>&1); then
+    echo "Using .NET SDK version '$sdk_version'"
+else
+    if [[ "$INPUT_USE_STANDALONE_TOOL" == "false" ]]; then
+        echo "::error ::The .NET SDK is not installed"
+        exit 1
+    fi
+fi
+
+if [[ "$INPUT_USE_STANDALONE_TOOL" == "true" ]]; then
+    cmd="dotnet-format"
+else
+    cmd="dotnet format"
+fi
+
+if version=$(eval "$cmd --version" 2>&1); then
+    echo "Using 'dotnet format' version '$version'"
+else
+    echo "::error ::The 'dotnet-format' tool is not installed"
+    exit 1
+fi
+
+if [[ -n "$INPUT_WORKSPACE" ]]; then
+    cmd+=" '$INPUT_WORKSPACE'"
+fi
 
 if [[ "$INPUT_IMPLICIT_RESTORE" == "false" ]]; then
     cmd+=" --no-restore"

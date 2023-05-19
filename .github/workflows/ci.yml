@@ -12,18 +12,17 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Workaround for https://github.com/dotnet/format/issues/1805
-  DOTNET_INSTALL_DIR: .temp/dotnet
-  DOTNET_ROOT: .temp/dotnet
+  TEST_DIRECTORY: test
 
 jobs:
   test:
-    name: Test on '${{ matrix.platform }}'
+    name: Test on '${{ matrix.platform }}' [standalone = ${{ matrix.use-standalone-tool }}]
     runs-on: ${{ matrix.platform }}
     strategy:
       fail-fast: false
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
+        use-standalone-tool: [false, true]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -31,19 +30,35 @@ jobs:
       - name: .NET Setup
         uses: zyactions/dotnet-setup@v1
         with:
-          global-json-file: test/global.json
+          global-json-file: ${{ env.TEST_DIRECTORY }}/global.json
+
+      - name: .NET Setup (SDK 8)
+        if: matrix.use-standalone-tool
+        uses: zyactions/dotnet-setup@v1
+        with:
+          dotnet-version: '8.x.x'
+
+      - name: Install latest .NET Format tool
+        if: matrix.use-standalone-tool
+        shell: bash
+        run: |
+          dotnet tool install -g dotnet-format --version "8.*" --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json
 
       - name: .NET Restore
         uses: zyactions/dotnet-restore@v1
         with:
-          workspace: test
+          # TODO: Use working-directory instead
+          workspace: ${{ env.TEST_DIRECTORY }}
 
       - name: .NET Format
         uses: ./
         with:
-          workspace: test
+          working-directory: ${{ env.TEST_DIRECTORY }}
+          use-standalone-tool: ${{ matrix.use-standalone-tool }}
 
       - name: .NET Format Project
         uses: ./
         with:
-          workspace: test/Test.csproj
+          working-directory: ${{ env.TEST_DIRECTORY }}
+          workspace: Test.csproj
+          use-standalone-tool: ${{ matrix.use-standalone-tool }}

@@ -8,8 +8,22 @@ branding:
   color: blue
 
 inputs:
+  working-directory:
+    description: >
+      The working-directory for the action.
+
+      Defaults to the repository root directory (`github.workspace`).
+
+      If a specific .NET SDK version is to be used, the working directory must point to the
+      directory that contains the `global.json` or a subdirectory of it.
+    type: string
+    required: false
+    default: ${{ github.workspace }}
   workspace:
-    description: The Visual Studio workspace (directory, project- or solution-file).
+    description: >
+      The Visual Studio workspace (directory, project- or solution-file).
+
+      This path is relative to the `working-directory` unless an absolute path is used.
     type: string
     required: false
     default: ''
@@ -72,6 +86,13 @@ inputs:
     type: boolean
     required: false
     default: false
+  use-standalone-tool:
+    description: >
+      Uses the standalone version of the `dotnet-format` tool instead of the version bundled
+      with the .NET SDK.
+    type: boolean
+    required: false
+    default: false
   pipe:
     description: >
       An optional pipe input from which the `include` or `exclude` filenames are to be read.
@@ -91,7 +112,7 @@ runs:
   steps:
     - name: .NET Format
       shell: bash
-      working-directory: ${{ github.workspace }}
+      working-directory: ${{ inputs.working-directory }}
       env:
         INPUT_WORKSPACE: ${{ inputs.workspace }}
         INPUT_DIAGNOSTICS: ${{ inputs.diagnostics }}
@@ -101,6 +122,7 @@ runs:
         INPUT_EXCLUDE: ${{ inputs.exclude }}
         INPUT_REPORT_PATH: ${{ inputs.report-path }}
         INPUT_IMPLICIT_RESTORE: ${{ inputs.implicit-restore != 'false' && 'true' || 'false' }}
+        INPUT_USE_STANDALONE_TOOL: ${{ inputs.use-standalone-tool != 'false' && 'true' || 'false' }}
         INPUT_PIPE: ${{ inputs.pipe }}
       run: |
         "$GITHUB_ACTION_PATH/entrypoint.sh"
